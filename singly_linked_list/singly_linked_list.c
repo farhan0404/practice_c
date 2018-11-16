@@ -1,11 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-
-struct Node
-{
-	struct Node* next;
-	int data;
-};
+#include "singly_linked_list.h"
 
 void print_llist(struct Node* node)
 {
@@ -15,11 +8,6 @@ void print_llist(struct Node* node)
 		node = node->next;
 	}
 	printf("\n");
-}
-
-void new_node(struct Node** ptr_head, int data)
-{
-	struct Node* new_node = (struct Node* )malloc(sizeof(struct Node));
 }
 
 void add_first(struct Node** ptr_head, int data)
@@ -40,11 +28,9 @@ void add_last(struct Node** ptr_head, int data)
 	new_node->data = data;
 	new_node->next = NULL;
 	
-	
 	if( start == NULL )
 	{
 		*ptr_head = new_node;
-		
 		return;
 	}
     
@@ -53,35 +39,14 @@ void add_last(struct Node** ptr_head, int data)
 	    start = start->next;
 	}
 	start->next = new_node;
-		
 }
 
-void add_end(struct Node** ptr_head, int data)
-{
-    struct Node* new_node = (struct Node* )malloc(sizeof(struct Node));
-    
-    new_node->data = data;
-    new_node->next = NULL;
-    if(*ptr_head == NULL)
-    {
-        *ptr_head = new_node;
-        return;
-    }
-    
-    while( (*ptr_head)->next != NULL)
-    {
-        (*ptr_head) = (*ptr_head)->next;
-    }
-    (*ptr_head)->next = new_node;
-    
-}
-
-void insert_before_key()
+void insert_before_val()
 {
     
 }
 
-void insert_after_key()
+void insert_after_val()
 {
     
 }
@@ -99,32 +64,109 @@ void insert_after_node(struct Node* prev_node, int data)
     prev_node->next = new_node;
 }
 
-delete_node_key()
+int remove_start(struct Node** ptr_phead)
 {
+    int val;
+    
+	if( *ptr_phead == NULL)
+	    return -1;
 	
+	struct Node* temp;
+	temp = *ptr_phead;
+	
+	val = temp->data; 
+	
+	(*ptr_phead) = temp->next;
+	
+	free(temp);
+	return val;
 }
 
-delete_node_position()
+int remove_end(struct Node* head)
 {
+    struct Node* prev;
+    int val;
+    
+    if( head == NULL)
+        return -1;
+        
+    prev = head;
+    while(head->next != NULL)
+    {
+        prev = head;
+        head = head->next;
+    }
+    val = head->data;
+    prev->next = NULL;
+    free(head);
+    
+    return val;
+} 
+
+
+int delete_key(struct Node** ptr_phead, int key)
+{
+	struct Node* curr,* prev;
+
+	curr = *ptr_phead;
+	prev = curr;
+
+    // First node contains key
+    if( curr->data == key )
+    {
+        *ptr_phead = curr->next;
+        free(curr);
+        return 0;
+    }
+    
+	while( curr->next != NULL & curr->data != key)
+	{
+        prev = curr;
+        curr = curr->next;
+	}
+    if( curr->data == key)
+    {
+        prev->next = curr->next;
+        free(curr);
+        return 0;
+    }	
+    // The key is not in the list
+    return -1;
+}
+
+int delete_position(struct Node** ptr_phead, int location)
+{
+    struct Node* curr,* prev;
+    curr = *ptr_phead;
+    
+    int count = 0;
+    
+    if( location == 1)
+    {
+        *ptr_phead = curr->next;
+        free(curr);
+        return 0;
+    }
+    count = 1;
+    while( curr->next != NULL && count != location )
+    {
+        prev = curr;
+        curr = curr->next;
+        count++;
+    }
+    
+    if( count == location )
+    {
+        prev->next = curr->next;
+        free(curr);
+        return 0;
+    }
+    
+    return -1;
 }
 
 void delete_list(struct Node** head)
 {
-    /*
-    struct Node* temp;
-	temp = head;
-	
-	if(head == NULL)
-	    return;
-	    
-	//temp = temp->next;
-	while( head->next!= NULL )
-	{   temp = temp->next;
-		free(head);
-		head = temp;
-	}
-	free(head);
-	*/
 	struct Node* current;
 	struct Node* next;
 	
@@ -167,16 +209,38 @@ search_key_recursive()
 {
 }
 
-search_key_iterative()
+int search_key_iterative(struct Node* head, int key)
 {
 }
 
-get_nth_node()
+// Returns node at position, starts from 1
+int get_nth_node(struct Node* head, int position)
 {
+	int index = 1;
+	
+	while(head->next != NULL && index<position)
+	{
+		head = head->next;
+		index++;
+	}
+	
+	if( index == position )
+	{
+		return head->data;
+	}
+	return -1;
 }
 
-get_nth_node_from_end()
+int get_nth_node_from_end(struct Node* head, int position)
 {
+    int length;
+	length = get_length_iterative(head);
+	//printf("length is %d \n", length);
+	
+	length = get_length_recursive(head);
+	//printf("length recursive is %d \n", length);
+	
+	return get_nth_node(head, length - position + 1);
 }
 
 int main(void)
@@ -209,10 +273,16 @@ int main(void)
 	*/
 	//add_last(&head,4);
 	
-	add_end(&head, 8);
-		print_llist(head);
+	add_last(&head, 8);
+	print_llist(head);
 	
-	add_end(&head, 9);
+	add_last(&head, 9);
+	print_llist(head);
+
+	printf("Value removed from end is %d \n", remove_end(&head));
+	print_llist(head);
+	
+	printf("Value removed from end is %d \n", remove_end(&head));
 	print_llist(head);
 	
 	add_first(&head, 7);
@@ -233,7 +303,75 @@ int main(void)
 	
 	printf("Length recursive %d \n", get_length_recursive(head));
 	printf("Length iterative %d \n", get_length_iterative(head));
-	
-	delete_list(&head);
+
+    printf("After deleting key 3 return val %d \n", delete_key(&head,3));
 	print_llist(head);	
+
+    printf("After deleting key 6 return val %d \n", delete_key(&head,6));
+	print_llist(head);
+	
+
+    printf("After deleting key 7 return val %d \n", delete_key(&head,7));
+	print_llist(head);
+	
+    printf("After deleting key 77 return val %d \n", delete_key(&head,7));
+	print_llist(head);	
+	
+	printf("Value removed from front is %d \n", remove_start(&head));
+	print_llist(head);
+
+	printf("Value removed from end is %d \n", remove_end(&head));
+	print_llist(head);
+
+
+	add_last(&head, 8);
+	print_llist(head);
+	
+	add_last(&head, 7);
+	print_llist(head);
+	
+	add_last(&head, 1);
+	print_llist(head);
+	
+	add_last(&head, 9);
+	print_llist(head);	
+
+    printf("Delet val at location 1 return val %d \n", delete_position(&head,1));
+	print_llist(head);		
+
+    printf("Delet val at location 2 return val %d \n", delete_position(&head,3));
+	print_llist(head);			
+	
+	printf("Delet val at location 3 return val %d \n", delete_position(&head,3));
+	print_llist(head);			
+
+	add_last(&head, 6);
+	print_llist(head);
+	
+	add_last(&head, 9);
+	print_llist(head);	
+	
+	printf("Get val at postion 3 return val %d \n", get_nth_node(head,3));
+	print_llist(head);		
+
+	printf("Get val at postion 1 return val %d \n", get_nth_node(head,1));
+	print_llist(head);	
+	
+	printf("Get val at postion 4 return val %d \n", get_nth_node(head,4));
+	print_llist(head);	
+	
+	printf("Length recursive %d \n", get_length_recursive(head));
+	printf("Length iterative %d \n", get_length_iterative(head));	
+	
+	printf("Get val from end at postion 1 return val %d \n", get_nth_node_from_end(head,1));
+	print_llist(head);		
+
+	printf("Get val from end at postion 4 return val %d \n", get_nth_node_from_end(head,4));
+	print_llist(head);	
+	
+	printf("Get val at from end postion 2 return val %d \n", get_nth_node_from_end(head,2));
+	print_llist(head);		
+	//delete_list(&head);
+	//print_llist(head);		
+
 }
